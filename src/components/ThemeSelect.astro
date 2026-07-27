@@ -1,0 +1,45 @@
+---
+import Select from '@astrojs/starlight/components/Select.astro';
+
+// Keep this list in sync with THEMES in ThemeProvider.astro and themes.css.
+const themes = [
+	{ value: 'midnight', label: 'Midnight' },
+	{ value: 'forest', label: 'Forest' },
+];
+---
+
+<jelli-theme-select>
+	<Select
+		icon="setting"
+		label="Select theme"
+		options={themes.map((t) => ({ ...t, selected: t.value === 'midnight' }))}
+		width="8.5em"
+	/>
+</jelli-theme-select>
+
+{/* Inlined to sync the picker with the stored theme without a flash. */}
+<script is:inline>
+	if (window.StarlightThemeProvider) window.StarlightThemeProvider.updatePickers();
+</script>
+
+<script>
+	class JelliThemeSelect extends HTMLElement {
+		constructor() {
+			super();
+			const provider = window.StarlightThemeProvider;
+			const select = this.querySelector('select');
+			if (!provider || !select) return;
+			// Reflect current selection on hydration.
+			provider.updatePickers();
+			select.addEventListener('change', (e) => {
+				const target = e.currentTarget;
+				if (target instanceof HTMLSelectElement) {
+					provider.apply(target.value);
+					provider.store(target.value);
+					provider.updatePickers(target.value);
+				}
+			});
+		}
+	}
+	customElements.define('jelli-theme-select', JelliThemeSelect);
+</script>

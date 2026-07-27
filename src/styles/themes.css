@@ -1,0 +1,257 @@
+/* ============================================================================
+   Jellidocs theme registry
+   ----------------------------------------------------------------------------
+   Each theme is selected from the header dropdown and applied as
+   `:root[data-theme-variant="<name>"]`. The `data-theme` (light|dark) base is
+   set alongside it by ThemeProvider.astro so Starlight's own tokens have a sane
+   starting point; the rules below layer each theme's palette on top.
+
+   Common Starlight tokens worth overriding per theme:
+     --sl-color-bg              page background
+     --sl-color-bg-nav          top header background
+     --sl-color-bg-sidebar      left sidebar background
+     --sl-color-accent-low/-/-high   accent ramp (buttons, focus, active bg)
+     --sl-color-text-accent     links & active nav item text
+     --sl-color-white           heading text (dark themes)
+   ============================================================================ */
+
+/* ---------------------------------------------------------------------------
+   GLASS — shared frosted-glass structure for any theme the ThemeProvider flags
+   with `data-glass`. Themes supply the palette + knobs; these rules supply the
+   structure (blur, borders, shadows, radii). Glass themes: Midnight, Forest.
+   --------------------------------------------------------------------------- */
+
+/* Default glass knobs — each glass theme may override any of these. */
+:root[data-glass] {
+	--glass-blur: saturate(190%) blur(30px);
+	--glass-border: rgba(255, 255, 255, 0.16);
+	--glass-shadow:
+		0 16px 55px rgba(0, 0, 0, 0.5),
+		0 0 45px rgba(108, 123, 255, 0.22);
+	--glass-highlight:
+		inset 0 1px 0 rgba(255, 255, 255, 0.22),
+		inset 0 14px 34px rgba(255, 255, 255, 0.06);
+	--glass-radius: 20px;
+	--glass-fill: rgba(255, 255, 255, 0.08);
+	--glass-code-bg: rgba(18, 22, 36, 0.4);
+	--glass-code-term-bg: rgba(14, 18, 30, 0.45);
+	--glass-glow-ring: rgba(108, 123, 255, 0.55);
+	--glass-glow-soft: rgba(108, 123, 255, 0.35);
+}
+
+/* Frosted header. Target the <header> element specifically: Starlight also
+   gives its inner content wrapper the class `header`, and matching that too
+   painted a second border + blur (a stray box line). */
+:root[data-glass] header.header {
+	backdrop-filter: var(--glass-blur);
+	-webkit-backdrop-filter: var(--glass-blur);
+	border-bottom: 1px solid var(--glass-border);
+}
+
+/* Frosted sidebar */
+:root[data-glass] .sidebar-pane {
+	backdrop-filter: var(--glass-blur);
+	-webkit-backdrop-filter: var(--glass-blur);
+	border-inline-end: 1px solid var(--glass-border);
+}
+
+/* Glass code blocks (Expressive Code) */
+:root[data-glass] .expressive-code {
+	--ec-frm-edBg: var(--glass-code-bg);
+	--ec-frm-trmBg: var(--glass-code-term-bg);
+}
+:root[data-glass] .expressive-code .frame {
+	border: 1px solid var(--glass-border);
+	/* Match the Previous/Next pager buttons (0.5rem) rather than the larger
+	   --glass-radius, which reads too circular on code blocks. */
+	border-radius: 0.5rem;
+	box-shadow: var(--glass-shadow), var(--glass-highlight);
+	overflow: hidden;
+	backdrop-filter: var(--glass-blur);
+	-webkit-backdrop-filter: var(--glass-blur);
+}
+:root[data-glass] .expressive-code .frame pre {
+	background: transparent;
+}
+
+/* Glass cards & link cards */
+:root[data-glass] .sl-markdown-content .card,
+:root[data-glass] .card,
+:root[data-glass] .sl-link-card {
+	background: var(--glass-fill);
+	border: 1px solid var(--glass-border);
+	border-radius: var(--glass-radius);
+	box-shadow: var(--glass-shadow), var(--glass-highlight);
+	backdrop-filter: var(--glass-blur);
+	-webkit-backdrop-filter: var(--glass-blur);
+}
+
+/* Glass callouts / asides */
+:root[data-glass] .starlight-aside {
+	border-radius: var(--glass-radius);
+	border: 1px solid var(--glass-border);
+	backdrop-filter: var(--glass-blur);
+	-webkit-backdrop-filter: var(--glass-blur);
+}
+
+/* Glass search trigger. Starlight only rounds this at >=50rem, so we round it
+   ourselves to keep it consistent with the other glass panels. */
+:root[data-glass] button[data-open-modal] {
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid var(--glass-border);
+	border-radius: var(--glass-radius);
+	backdrop-filter: var(--glass-blur);
+	-webkit-backdrop-filter: var(--glass-blur);
+}
+
+/* Glowing active sidebar item */
+:root[data-glass] .sidebar-pane a[aria-current='page'] {
+	box-shadow:
+		0 0 0 1px var(--glass-glow-ring),
+		0 8px 26px var(--glass-glow-soft);
+}
+
+/* Rounded, glassy tables. `overflow: auto` (not hidden) clips to the radius but
+   KEEPS Starlight's horizontal scroll, so wide tables aren't truncated. */
+:root[data-glass] .sl-markdown-content table {
+	border-radius: 0.75rem;
+	overflow: auto;
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid var(--glass-border);
+	backdrop-filter: var(--glass-blur);
+	-webkit-backdrop-filter: var(--glass-blur);
+}
+/* Symmetric padding so cell text doesn't hug the rounded edge, and translucent
+   dividers instead of Starlight's hard grey lines. */
+:root[data-glass] .sl-markdown-content :is(th, td) {
+	padding: 0.55rem 1rem;
+	border-bottom: 1px solid var(--glass-border);
+}
+:root[data-glass] .sl-markdown-content th {
+	background: rgba(255, 255, 255, 0.06);
+}
+/* No divider on the last row — it would cross the rounded bottom corner. */
+:root[data-glass] .sl-markdown-content tr:last-child td {
+	border-bottom: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   1. MIDNIGHT (dark) — black glossy with blue. Shares the glass structure above
+      (flagged data-glass); here it sets its palette, glass knobs, and backdrop.
+   --------------------------------------------------------------------------- */
+:root[data-theme-variant^='midnight'] {
+	/* Black base + blue accents. */
+	--sl-color-bg: #05070b;
+	/* Header and sidebar share ONE frosted surface so the top-left corner is
+	   seamless and the whole chrome reads as a single pane of glass. */
+	--glass-surface: rgba(10, 13, 18, 0.5);
+	--sl-color-bg-nav: var(--glass-surface);
+	--sl-color-bg-sidebar: var(--glass-surface);
+	--sl-color-bg-inline-code: rgba(255, 255, 255, 0.09);
+
+	--sl-color-accent-low: #12233f;
+	--sl-color-accent: #3b82f6;
+	--sl-color-accent-high: #bfdbfe;
+	--sl-color-text-accent: #60a5fa;
+
+	/* Blue-tinted glass knobs. */
+	--glass-blur: saturate(190%) blur(30px);
+	--glass-border: rgba(120, 160, 255, 0.18);
+	--glass-shadow:
+		0 16px 55px rgba(0, 0, 0, 0.6),
+		0 0 45px rgba(59, 130, 246, 0.24);
+	--glass-highlight:
+		inset 0 1px 0 rgba(255, 255, 255, 0.2),
+		inset 0 14px 34px rgba(120, 160, 255, 0.05);
+	--glass-radius: 20px;
+	--glass-fill: rgba(255, 255, 255, 0.06);
+	/* Near-solid black so code blocks read like a terminal, not frosted glass. */
+	--glass-code-bg: rgba(4, 6, 10, 0.96);
+	--glass-code-term-bg: rgba(2, 4, 7, 0.97);
+	--glass-glow-ring: rgba(59, 130, 246, 0.6);
+	--glass-glow-soft: rgba(59, 130, 246, 0.4);
+}
+
+/* Black backdrop with blue glows for the frosted panels to blur. */
+:root[data-theme-variant^='midnight'] body {
+	background:
+		radial-gradient(900px circle at 4% 2%, rgba(59, 130, 246, 0.3), transparent 55%),
+		radial-gradient(820px circle at 96% 6%, rgba(37, 99, 235, 0.22), transparent 52%),
+		radial-gradient(1000px circle at 50% 116%, rgba(56, 189, 248, 0.16), transparent 55%),
+		linear-gradient(180deg, #03050a 0%, #05070d 55%, #020408 100%);
+	background-attachment: fixed;
+}
+
+/* Inline code chips: white pill with black text. `:not(.not-content *)` keeps
+   this off Expressive Code blocks (their frame carries the .not-content class). */
+:root[data-theme-variant^='midnight'] .sl-markdown-content code:not(:where(.not-content *)) {
+	background: #fff;
+	color: #000;
+	border-radius: 6px;
+}
+
+/* Terminal-style code block: paint the near-solid black bg on the <pre> itself,
+   overriding the shared transparent rule so it reads dark instead of frosted. */
+:root[data-theme-variant^='midnight'] .expressive-code .frame pre {
+	background: var(--glass-code-bg);
+}
+
+/* Pure-white body text (Starlight's default is a muted grey). */
+:root[data-theme-variant^='midnight'] .sl-markdown-content {
+	color: #fff;
+}
+
+/* ---------------------------------------------------------------------------
+   2. FOREST  (dark) — glossy, black & green. Shares the glass structure
+      (flagged data-glass); overrides the palette + knobs toward green.
+   --------------------------------------------------------------------------- */
+:root[data-theme-variant='forest'] {
+	--sl-color-bg: #050906;
+	--glass-surface: rgba(8, 16, 11, 0.5);
+	--sl-color-bg-nav: var(--glass-surface);
+	--sl-color-bg-sidebar: var(--glass-surface);
+	--sl-color-bg-inline-code: rgba(74, 222, 128, 0.16);
+
+	--sl-color-accent-low: #0f3d24;
+	--sl-color-accent: #22c55e;
+	--sl-color-accent-high: #bbf7d0;
+	--sl-color-text-accent: #4ade80;
+
+	/* Green-tinted glass knobs */
+	--glass-border: rgba(74, 222, 128, 0.22);
+	--glass-shadow:
+		0 16px 55px rgba(0, 0, 0, 0.55),
+		0 0 45px rgba(34, 197, 94, 0.25);
+	--glass-highlight:
+		inset 0 1px 0 rgba(187, 247, 208, 0.18),
+		inset 0 14px 34px rgba(74, 222, 128, 0.05);
+	--glass-fill: rgba(74, 222, 128, 0.06);
+	/* Near-solid black code blocks with a green cast, terminal-style. */
+	--glass-code-bg: rgba(3, 8, 5, 0.95);
+	--glass-code-term-bg: rgba(1, 5, 3, 0.96);
+	--glass-glow-ring: rgba(34, 197, 94, 0.6);
+	--glass-glow-soft: rgba(34, 197, 94, 0.38);
+}
+
+/* Black backdrop with green glows for the frosted panels to blur. */
+:root[data-theme-variant='forest'] body {
+	background:
+		radial-gradient(900px circle at 4% 2%, rgba(34, 197, 94, 0.32), transparent 55%),
+		radial-gradient(860px circle at 98% 4%, rgba(16, 185, 129, 0.24), transparent 52%),
+		radial-gradient(1100px circle at 50% 116%, rgba(74, 222, 128, 0.2), transparent 55%),
+		linear-gradient(180deg, #030705 0%, #05100a 60%, #020604 100%);
+	background-attachment: fixed;
+}
+
+/* Terminal-style dark code block (override the shared transparent pre). */
+:root[data-theme-variant='forest'] .expressive-code .frame pre {
+	background: var(--glass-code-bg);
+}
+
+/* Inline code chips: solid green pill with near-black text (matches the black &
+   green palette). `:not(.not-content *)` keeps this off code blocks. */
+:root[data-theme-variant='forest'] .sl-markdown-content code:not(:where(.not-content *)) {
+	background: #4ade80;
+	color: #04160b;
+	border-radius: 6px;
+}

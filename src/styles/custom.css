@@ -1,0 +1,45 @@
+/* Show the left sidebar at narrower viewports than Starlight's 50rem default.
+   Starlight drives its two-column layout with `md:` utility classes that flip
+   on at min-width: 50rem. We re-declare them (and the sidebar/main rules) at a
+   lower breakpoint so the persistent sidebar appears in narrow windows too. */
+
+@media (min-width: 30rem) {
+	/* Keep the sidebar compact so content still has room at small widths. */
+	:root {
+		--sl-sidebar-width: 14rem;
+	}
+
+	/* Flip Starlight's responsive utilities early. */
+	.md\:sl-hidden {
+		display: none !important;
+	}
+	.md\:sl-flex {
+		display: flex !important;
+	}
+	.md\:sl-block {
+		display: block !important;
+	}
+
+	/* Reveal the sidebar as a fixed column. */
+	.sidebar-pane {
+		--sl-sidebar-visibility: visible;
+		width: var(--sl-sidebar-width);
+		background-color: var(--sl-color-bg-sidebar);
+		border-inline-end: 1px solid var(--sl-color-hairline-shade);
+	}
+
+	/* Offset the main content so it clears the fixed sidebar. */
+	.main-frame {
+		padding-inline-start: var(--sl-sidebar-width);
+	}
+}
+
+/* Compact Previous / Next pager at the bottom of pages (all themes):
+   shorter buttons and slightly smaller text. */
+.pagination-links a {
+	padding-block: 0.7rem;
+	font-size: var(--sl-text-sm);
+}
+.pagination-links a .link-title {
+	font-size: var(--sl-text-lg);
+}

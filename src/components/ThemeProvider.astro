@@ -1,0 +1,57 @@
+---
+{/* Inlined to avoid a flash of the wrong theme (FOUC). Overrides Starlight's own ThemeProvider. */}
+<script is:inline>
+	window.StarlightThemeProvider = (() => {
+		// Registry of selectable themes. `base` picks the underlying Starlight
+		// light/dark token set that each theme layers its colors on top of.
+		// `glass: true` opts a theme into the shared frosted-glass structure
+		// (the CSS rules keyed on [data-glass]).
+		const THEMES = {
+			midnight: { base: 'dark', label: 'Midnight', glass: true },
+			forest: { base: 'dark', label: 'Forest', glass: true },
+		};
+		const KEY = 'jellidocs-theme';
+		const DEFAULT = 'midnight';
+
+		function stored() {
+			try {
+				return localStorage.getItem(KEY);
+			} catch (e) {
+				return null;
+			}
+		}
+		function resolve(name) {
+			return name && THEMES[name] ? name : DEFAULT;
+		}
+		function apply(name) {
+			name = resolve(name);
+			const el = document.documentElement;
+			el.dataset.theme = THEMES[name].base; // drives Starlight's base tokens
+			el.dataset.themeVariant = name; // drives our per-theme overrides
+			if (THEMES[name].glass) el.dataset.glass = 'true'; // opt into glass rules
+			else delete el.dataset.glass;
+		}
+
+		// Apply immediately, before paint.
+		apply(stored());
+
+		return {
+			THEMES,
+			KEY,
+			DEFAULT,
+			resolve,
+			apply,
+			store(name) {
+				try {
+					localStorage.setItem(KEY, resolve(name));
+				} catch (e) {}
+			},
+			updatePickers(name) {
+				name = resolve(name || stored());
+				document.querySelectorAll('jelli-theme-select select').forEach((select) => {
+					select.value = name;
+				});
+			},
+		};
+	})();
+</script>
