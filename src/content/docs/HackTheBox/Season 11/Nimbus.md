@@ -5,7 +5,7 @@ description: "HackTheBox Season 11 — SSRF to AWS IMDS creds, LocalStack SQS jo
 
 <a href="https://labs.hackthebox.com/achievement/machine/1439304/912" style="display:block;max-width:560px;margin:1.5rem auto;text-decoration:none;border-radius:14px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.45);font-family:system-ui,-apple-system,sans-serif;">
   <div style="height:104px;background:#141D2B url('https://labs.hackthebox.com/images/achievementBG.png') center/cover;position:relative;">
-    <img src="https://cdn.services-k8s.prod.aws.htb.systems/content/machines/avatar/a1e513f0-690d-4dc2-bd2c-946d3983d026-1780052541.png" alt="Nimbus" width="76" height="76" style="position:absolute;left:50%;bottom:-38px;transform:translateX(-50%);border-radius:50%;background:#1A2332;box-shadow:0 0 0 4px #1A2332;" />
+    <img src="https://cdn.services-k8s.prod.aws.htb.systems/content/machines/avatar/a1e513f0-690d-4dc2-bd2c-946d3983d026-1780052541.png" alt="Nimbus HackTheBox machine avatar" width="76" height="76" style="position:absolute;left:50%;bottom:-38px;transform:translateX(-50%);border-radius:50%;background:#1A2332;box-shadow:0 0 0 4px #1A2332;" />
   </div>
   <div style="background:#1A2332;padding:52px 20px 22px;text-align:center;">
     <div style="color:#fff;font-size:1.2rem;font-weight:600;">Nimbus has been Pwned</div>

@@ -14,7 +14,7 @@ const pageIcon = entry.data.pageIcon;
 			<div class="lg:sl-hidden">{toc && <MobileTableOfContents />}</div>
 			<div class="right-sidebar-panel sl-hidden lg:sl-block">
 				<div class="sl-container">
-					{pageIcon && <img class="page-icon" src={pageIcon} alt="" loading="lazy" />}
+					{pageIcon && <img class="page-icon" src={pageIcon} alt={`${entry.data.title} icon`} loading="lazy" />}
 					{toc && <TableOfContents />}
 				</div>
 			</div>

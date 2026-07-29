@@ -5,7 +5,7 @@ description: "HackTheBox Season 11 — FreePBX RCE to root via the sysadmin modu
 
 <a href="https://labs.hackthebox.com/achievement/machine/1439304/906" style="display:block;max-width:560px;margin:1.5rem auto;text-decoration:none;border-radius:14px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.45);font-family:system-ui,-apple-system,sans-serif;">
   <div style="height:104px;background:#141D2B url('https://labs.hackthebox.com/images/achievementBG.png') center/cover;position:relative;">
-    <img src="https://cdn.services-k8s.prod.aws.htb.systems/content/machines/avatar/a1e14c0a-2ce3-44f2-a101-f0415bb1e577-1779890154.png" alt="Connected" width="76" height="76" style="position:absolute;left:50%;bottom:-38px;transform:translateX(-50%);border-radius:50%;background:#1A2332;box-shadow:0 0 0 4px #1A2332;" />
+    <img src="https://cdn.services-k8s.prod.aws.htb.systems/content/machines/avatar/a1e14c0a-2ce3-44f2-a101-f0415bb1e577-1779890154.png" alt="Connected HackTheBox machine avatar" width="76" height="76" style="position:absolute;left:50%;bottom:-38px;transform:translateX(-50%);border-radius:50%;background:#1A2332;box-shadow:0 0 0 4px #1A2332;" />
   </div>
   <div style="background:#1A2332;padding:52px 20px 22px;text-align:center;">
     <div style="color:#fff;font-size:1.2rem;font-weight:600;">Connected has been Pwned</div>
