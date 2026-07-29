@@ -14,7 +14,7 @@ const pageIcon = entry.data.pageIcon;
 			<div class="lg:sl-hidden">{toc && <MobileTableOfContents />}</div>
 			<div class="right-sidebar-panel sl-hidden lg:sl-block">
 				<div class="sl-container">
-					{pageIcon && <img class="page-icon" src={pageIcon} alt="" width="88" height="88" loading="lazy" />}
+					{pageIcon && <img class="page-icon" src={pageIcon} alt="" loading="lazy" />}
 					{toc && <TableOfContents />}
 				</div>
 			</div>
@@ -23,15 +23,16 @@ const pageIcon = entry.data.pageIcon;
 }
 
 <style>
-	/* Circular page icon. */
+	/* Circular page icon — ~3/4 of the TOC bar width, image covers the circle
+	   (centre shown, edges cropped) rather than inscribed with empty space. */
 	.page-icon {
 		display: block;
-		width: 88px;
-		height: 88px;
-		margin: 0 auto 1.25rem;
-		padding: 0.55rem;
+		width: 75%;
+		aspect-ratio: 1;
+		height: auto;
+		margin: 0 auto 1.5rem;
 		border-radius: 50%;
-		object-fit: contain;
+		object-fit: cover;
 		background: var(--glass-surface, rgba(255, 255, 255, 0.05));
 		border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.15));
 		box-shadow: var(--glass-shadow, 0 8px 24px rgba(0, 0, 0, 0.4));
