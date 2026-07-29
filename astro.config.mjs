@@ -16,6 +16,8 @@ export default defineConfig({
 				// Custom multi-theme switcher (replaces the Light/Dark/Auto dropdown).
 				ThemeProvider: './src/components/ThemeProvider.astro',
 				ThemeSelect: './src/components/ThemeSelect.astro',
+				// Adds an optional circular page icon above the "On this page" TOC.
+				PageSidebar: './src/components/PageSidebar.astro',
 			},
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/jellibeantheargonaut' },

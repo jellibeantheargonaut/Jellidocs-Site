@@ -1,0 +1,80 @@
+---
+import MobileTableOfContents from 'virtual:starlight/components/MobileTableOfContents';
+import TableOfContents from 'virtual:starlight/components/TableOfContents';
+
+// Optional per-page icon (from `pageIcon` frontmatter) rendered as a circle
+// above the "On this page" table of contents.
+const { toc, entry } = Astro.locals.starlightRoute;
+const pageIcon = entry.data.pageIcon;
+---
+
+{
+	(toc || pageIcon) && (
+		<>
+			<div class="lg:sl-hidden">{toc && <MobileTableOfContents />}</div>
+			<div class="right-sidebar-panel sl-hidden lg:sl-block">
+				<div class="sl-container">
+					{pageIcon && <img class="page-icon" src={pageIcon} alt="" width="88" height="88" loading="lazy" />}
+					{toc && <TableOfContents />}
+				</div>
+			</div>
+		</>
+	)
+}
+
+<style>
+	/* Circular page icon. */
+	.page-icon {
+		display: block;
+		width: 88px;
+		height: 88px;
+		margin: 0 auto 1.25rem;
+		padding: 0.55rem;
+		border-radius: 50%;
+		object-fit: contain;
+		background: var(--glass-surface, rgba(255, 255, 255, 0.05));
+		border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.15));
+		box-shadow: var(--glass-shadow, 0 8px 24px rgba(0, 0, 0, 0.4));
+		backdrop-filter: var(--glass-blur, blur(12px));
+		-webkit-backdrop-filter: var(--glass-blur, blur(12px));
+	}
+
+	/* --- Starlight's original PageSidebar layout (preserved) --- */
+	@layer starlight.core {
+		.right-sidebar-panel {
+			padding: 1rem var(--sl-sidebar-pad-x);
+		}
+		.sl-container {
+			width: calc(var(--sl-sidebar-width) - 2 * var(--sl-sidebar-pad-x));
+		}
+		.right-sidebar-panel :global(h2) {
+			color: var(--sl-color-white);
+			font-size: var(--sl-text-h5);
+			font-weight: 600;
+			line-height: var(--sl-line-height-headings);
+			margin-bottom: 0.5rem;
+		}
+		.right-sidebar-panel :global(:where(a)) {
+			display: block;
+			font-size: var(--sl-text-xs);
+			text-decoration: none;
+			color: var(--sl-color-gray-3);
+			overflow-wrap: anywhere;
+		}
+		.right-sidebar-panel :global(:where(a):hover) {
+			color: var(--sl-color-white);
+		}
+		@media (min-width: 72rem) {
+			.sl-container {
+				max-width: calc(
+					(
+						(
+								100vw - var(--sl-sidebar-width) - 2 * var(--sl-content-pad-x) - 2 *
+									var(--sl-sidebar-pad-x)
+							) * 0.25 /* MAGIC NUMBER 🥲 */
+					)
+				);
+			}
+		}
+	}
+</style>

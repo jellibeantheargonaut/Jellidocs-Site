@@ -1,10 +1,7 @@
 ---
 title: "Ifrit Pro Lab"
 description: "HackTheBox Ifrit Pro Lab — full walkthrough of a 3-domain AD forest: RDP foothold, GitLab-leaked API RCE, MSSQL linked servers, ADCS ESC1/ESC8, RBCD, DPAPI, and cross-domain trust to forest root."
-sidebar:
-  badge:
-    text: Intermediate
-    variant: caution
+pageIcon: "https://app.hackthebox.com/images/icons/ic-prolabs/ic-ifrit-overview.svg"
 ---
 
 **Ifrit** is a HackTheBox Active Directory Pro Lab modelling a **three-domain
