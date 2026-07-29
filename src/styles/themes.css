@@ -112,8 +112,12 @@
 }
 
 /* Rounded, glassy tables. `overflow: auto` (not hidden) clips to the radius but
-   KEEPS Starlight's horizontal scroll, so wide tables aren't truncated. */
+   KEEPS Starlight's horizontal scroll, so wide tables aren't truncated.
+   `width: fit-content` shrinks the block to its cells so the border hugs the
+   content instead of the full column; `max-width: 100%` still allows scroll. */
 :root[data-glass] .sl-markdown-content table {
+	width: fit-content;
+	max-width: 100%;
 	border-radius: 0.75rem;
 	overflow: auto;
 	background: rgba(255, 255, 255, 0.03);
