@@ -1,7 +1,25 @@
 ---
 title: "HTB CAPE — Exam Review"
 description: "A spoiler-free review of the HTB Certified Active Directory Pentesting Expert exam — what the ten-day window actually feels like, the hurdles that cost me the most time, and the redirector, reverse-shell and Kerberos tradecraft I leaned on from start to finish."
+pageIcon: "https://static.hackthebox.com/academy/badges/ce43a59d097ba2a96ea9617d47bc7eeb/logo.png"
 ---
+
+<a href="https://academy.hackthebox.com/achievement/badge/c4bd85a5-b5f0-11f1-82d1-bea50ffe6cb4" style="display:block;max-width:560px;margin:1.5rem auto;text-decoration:none;border-radius:14px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.45);font-family:system-ui,-apple-system,sans-serif;">
+  <div style="height:104px;background:#141D2B url('https://labs.hackthebox.com/images/achievementBG.png') center/cover;position:relative;">
+    <img src="https://static.hackthebox.com/academy/badges/ce43a59d097ba2a96ea9617d47bc7eeb/logo.png" alt="HTB Certified Active Directory Pentesting Expert badge" width="88" height="88" style="position:absolute;left:50%;bottom:-44px;transform:translateX(-50%);border-radius:50%;background:#1A2332;box-shadow:0 0 0 4px #1A2332;" />
+  </div>
+  <div style="background:#1A2332;padding:58px 20px 22px;text-align:center;">
+    <div style="color:#fff;font-size:1.15rem;font-weight:600;line-height:1.35;">HTB Certified Active Directory<br />Pentesting Expert</div>
+    <div style="height:1px;margin:14px auto;max-width:240px;background:linear-gradient(to right,transparent,#9FEF00,transparent);"></div>
+    <div style="color:#A4B1CD;font-size:.9rem;"><span style="color:#fff;">vishnupunati</span> earned this badge</div>
+    <div style="display:flex;justify-content:center;margin-top:20px;">
+      <div style="flex:1;padding:4px;"><div style="color:#9FEF00;font-weight:700;letter-spacing:1px;">CAPE</div><div style="color:#A4B1CD;font-size:.62rem;letter-spacing:1px;margin-top:2px;">CERTIFICATION</div></div>
+      <div style="flex:1;padding:4px;border-left:1px solid #111927;border-right:1px solid #111927;"><div style="color:#9FEF00;font-weight:700;letter-spacing:1px;">21 Sep 2026</div><div style="color:#A4B1CD;font-size:.62rem;letter-spacing:1px;margin-top:2px;">ISSUED</div></div>
+      <div style="flex:1;padding:4px;"><div style="color:#9FEF00;font-weight:700;letter-spacing:1px;">EXPERT</div><div style="color:#A4B1CD;font-size:.62rem;letter-spacing:1px;margin-top:2px;">LEVEL</div></div>
+    </div>
+    <div style="color:#64748B;font-size:.58rem;letter-spacing:.6px;margin-top:16px;">CREDENTIAL ID · C4BD85A5-B5F0-11F1-82D1-BEA50FFE6CB4</div>
+  </div>
+</a>
 
 **HTB CAPE** — *Certified Active Directory Pentesting Expert* — is Hack The Box's
 expert-level Active Directory certification. You are dropped into a full AD
