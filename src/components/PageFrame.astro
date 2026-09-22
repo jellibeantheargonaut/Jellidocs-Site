@@ -1,0 +1,17 @@
+---
+/**
+ * Starlight's PageFrame, wrapped so the animated mesh backdrop is mounted once
+ * per page behind the whole layout. The frame itself is Starlight's own
+ * component — the slots are passed straight through, so layout behaviour is
+ * unchanged.
+ */
+import Default from '@astrojs/starlight/components/PageFrame.astro';
+import MeshBackground from './MeshBackground.astro';
+---
+
+<MeshBackground />
+<Default>
+	<slot name="header" slot="header" />
+	<slot name="sidebar" slot="sidebar" />
+	<slot />
+</Default>

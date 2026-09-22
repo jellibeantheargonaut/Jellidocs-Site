@@ -18,6 +18,8 @@ export default defineConfig({
 				ThemeSelect: './src/components/ThemeSelect.astro',
 				// Adds an optional circular page icon above the "On this page" TOC.
 				PageSidebar: './src/components/PageSidebar.astro',
+				// Wraps Starlight's page frame to mount the animated node-mesh backdrop.
+				PageFrame: './src/components/PageFrame.astro',
 			},
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/jellibeantheargonaut' },

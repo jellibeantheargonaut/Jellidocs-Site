@@ -1,0 +1,326 @@
+---
+/**
+ * Animated node-mesh backdrop.
+ *
+ * A fixed, full-viewport canvas painted *behind* everything (z-index: -1, so it
+ * sits above the body gradient but below all content). Nodes drift inside a
+ * circular field that rotates slowly; any two that come close enough are joined
+ * by a line whose opacity falls off with distance, a minority of larger "hub"
+ * nodes reach further and gather spokes, sparks travel along links now and
+ * then, and every node has a finite life so the web keeps re-forming instead of
+ * settling.
+ *
+ * Colours come from the active theme (`--mesh-node`, `--mesh-line`,
+ * `--mesh-opacity` in themes.css) and are re-read when the theme switches.
+ * Honours `prefers-reduced-motion` by painting a single static frame, and stops
+ * animating entirely while the tab is hidden.
+ */
+---
+
+<canvas id="jelli-mesh" aria-hidden="true"></canvas>
+
+<style>
+	#jelli-mesh {
+		position: fixed;
+		inset: 0;
+		z-index: -1;
+		display: block;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
+		opacity: 0;
+		transition: opacity 800ms ease;
+	}
+	#jelli-mesh[data-ready] {
+		opacity: var(--mesh-opacity, 0.55);
+	}
+	@media print {
+		#jelli-mesh {
+			display: none;
+		}
+	}
+</style>
+
+<script>
+	const canvas = /** @type {HTMLCanvasElement | null} */ (document.getElementById('jelli-mesh'));
+	const ctx = canvas && canvas.getContext ? canvas.getContext('2d') : null;
+
+	if (canvas && ctx) {
+		const LINK = 185; // px — longest line between two ordinary nodes
+		const HUB_REACH = 1.5; // hubs link this much further than ordinary nodes
+		const POINTER_LINK = 200; // px — reach of the cursor's own links
+		const SPIN = 0.00034; // radians per frame (~2.5 minutes per rotation)
+		const FADE = 34; // frames a node takes to fade in / out
+		const PULSE_CHANCE = 0.00025; // per link, per frame: odds of firing a spark
+		const PULSE_MAX = 18; // hard cap on sparks in flight
+		const PULSE_LIFE = 50; // frames a spark takes to cross its link
+
+		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+		let W = 0;
+		let H = 0;
+		let field = 0; // radius of the circular area the nodes live in
+		let nodes = [];
+		let pulses = [];
+		let angle = 0;
+		let raf = 0;
+		let last = 0;
+		let resizeTimer = 0;
+
+		const colors = { node: 'rgba(160,190,255,0.9)', line: 'rgba(120,160,255,0.32)' };
+		const pointer = { x: 0, y: 0, active: false };
+
+		function readColors() {
+			const s = getComputedStyle(document.documentElement);
+			const node = s.getPropertyValue('--mesh-node').trim();
+			const line = s.getPropertyValue('--mesh-line').trim();
+			if (node) colors.node = node;
+			if (line) colors.line = line;
+		}
+
+		const rand = (a, b) => a + Math.random() * (b - a);
+
+		function spawn(seeded) {
+			// sqrt() keeps the distribution even across the disc instead of
+			// clumping everything around the centre
+			const r = Math.sqrt(Math.random()) * field;
+			const a = Math.random() * Math.PI * 2;
+			// A minority of nodes are "hubs": larger, brighter, and they reach
+			// further when linking, which gives the web a backbone instead of an
+			// even scatter of equals.
+			const hub = Math.random() < 0.14;
+			return {
+				x: Math.cos(a) * r,
+				y: Math.sin(a) * r,
+				vx: rand(-0.34, 0.34),
+				vy: rand(-0.34, 0.34),
+				size: hub ? rand(2.3, 3.3) : rand(1, 2),
+				hub,
+				reach: hub ? LINK * HUB_REACH : LINK,
+				// every node breathes at its own rate, so nothing ever looks frozen
+				twinkle: rand(0.006, 0.022),
+				phase: Math.random() * Math.PI * 2,
+				life: rand(5, 16) * 60,
+				// stagger the first generation so they don't all expire together
+				age: seeded ? rand(0, 300) : 0,
+				dying: false,
+				out: 0,
+			};
+		}
+
+		function resize() {
+			const dpr = Math.min(window.devicePixelRatio || 1, 2);
+			W = window.innerWidth;
+			H = window.innerHeight;
+			canvas.width = Math.round(W * dpr);
+			canvas.height = Math.round(H * dpr);
+			canvas.style.width = W + 'px';
+			canvas.style.height = H + 'px';
+			ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+			// the field overshoots the viewport so rotation never reveals an edge
+			field = Math.hypot(W, H) * 0.62;
+
+			// Density is set against the *field*, not the viewport: most nodes sit
+			// outside the visible rectangle at any moment, and counting only the
+			// visible ones leaves the screen nearly empty.
+			const target = Math.max(60, Math.min(260, Math.round((Math.PI * field * field) / 10500)));
+			pulses = []; // their endpoints are screen-space and now stale
+			if (nodes.length > target) nodes.length = target;
+			while (nodes.length < target) nodes.push(spawn(true));
+		}
+
+		function step(dt) {
+			angle += SPIN * dt;
+			for (let i = 0; i < nodes.length; i++) {
+				const n = nodes[i];
+				n.x += n.vx * dt;
+				n.y += n.vy * dt;
+
+				// bounce softly off the edge of the field
+				const d = Math.hypot(n.x, n.y);
+				if (d > field) {
+					n.vx = -n.vx;
+					n.vy = -n.vy;
+					n.x = (n.x / d) * field;
+					n.y = (n.y / d) * field;
+				}
+
+				n.age += dt;
+				if (!n.dying && n.age > n.life) n.dying = true;
+				if (n.dying) {
+					n.out += dt;
+					if (n.out > FADE) nodes[i] = spawn(false);
+				}
+			}
+
+			for (let i = pulses.length - 1; i >= 0; i--) {
+				pulses[i].t += dt;
+				if (pulses[i].t > PULSE_LIFE) pulses.splice(i, 1);
+			}
+		}
+
+		function alphaOf(n) {
+			if (n.dying) return Math.max(0, 1 - n.out / FADE);
+			return Math.min(1, n.age / FADE);
+		}
+
+		function draw() {
+			ctx.clearRect(0, 0, W, H);
+
+			const cx = W / 2;
+			const cy = H / 2;
+			const cos = Math.cos(angle);
+			const sin = Math.sin(angle);
+
+			// project the rotating field into screen space once per frame
+			const pts = [];
+			for (const n of nodes) {
+				const a = alphaOf(n);
+				if (a <= 0) continue;
+				const x = cx + n.x * cos - n.y * sin;
+				const y = cy + n.x * sin + n.y * cos;
+				if (x < -n.reach || x > W + n.reach || y < -n.reach || y > H + n.reach) continue;
+				const breath = 1 + 0.22 * Math.sin(n.phase + n.age * n.twinkle);
+				pts.push({ x, y, a, size: n.size * breath, hub: n.hub, reach: n.reach });
+			}
+
+			// links first, so the nodes sit on top of them
+			ctx.strokeStyle = colors.line;
+			ctx.lineWidth = 1;
+			for (let i = 0; i < pts.length; i++) {
+				const p = pts[i];
+				for (let j = i + 1; j < pts.length; j++) {
+					const q = pts[j];
+					// a pair links if *either* can reach the other, so hubs gather
+					// spokes while ordinary nodes keep to their neighbours
+					const reach = p.reach > q.reach ? p.reach : q.reach;
+					const dx = p.x - q.x;
+					const dy = p.y - q.y;
+					if (dx > reach || dx < -reach || dy > reach || dy < -reach) continue;
+					const d = Math.hypot(dx, dy);
+					if (d > reach) continue;
+					ctx.globalAlpha = (1 - d / reach) * 0.6 * p.a * q.a;
+					ctx.beginPath();
+					ctx.moveTo(p.x, p.y);
+					ctx.lineTo(q.x, q.y);
+					ctx.stroke();
+
+					// now and then, send a spark down this link
+					if (pulses.length < PULSE_MAX && Math.random() < PULSE_CHANCE) {
+						pulses.push({ ax: p.x, ay: p.y, bx: q.x, by: q.y, t: 0 });
+					}
+				}
+			}
+
+			// the cursor behaves like one more node
+			if (pointer.active) {
+				for (const p of pts) {
+					const d = Math.hypot(p.x - pointer.x, p.y - pointer.y);
+					if (d > POINTER_LINK) continue;
+					ctx.globalAlpha = (1 - d / POINTER_LINK) * 0.9 * p.a;
+					ctx.beginPath();
+					ctx.moveTo(p.x, p.y);
+					ctx.lineTo(pointer.x, pointer.y);
+					ctx.stroke();
+				}
+			}
+
+			ctx.fillStyle = colors.node;
+
+			// travelling sparks — a signal crossing from one node to the next
+			for (const s of pulses) {
+				const k = s.t / PULSE_LIFE;
+				ctx.globalAlpha = Math.sin(k * Math.PI) * 0.85;
+				ctx.beginPath();
+				ctx.arc(s.ax + (s.bx - s.ax) * k, s.ay + (s.by - s.ay) * k, 1.7, 0, Math.PI * 2);
+				ctx.fill();
+			}
+
+			for (const p of pts) {
+				// faint halo, then a brighter core
+				ctx.globalAlpha = p.a * (p.hub ? 0.26 : 0.16);
+				ctx.beginPath();
+				ctx.arc(p.x, p.y, p.size * (p.hub ? 2.9 : 2.1), 0, Math.PI * 2);
+				ctx.fill();
+				ctx.globalAlpha = p.a * (p.hub ? 1 : 0.88);
+				ctx.beginPath();
+				ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+				ctx.fill();
+			}
+			ctx.globalAlpha = 1;
+		}
+
+		function frame(now) {
+			raf = requestAnimationFrame(frame);
+			const dt = Math.min(3, last ? (now - last) / 16.67 : 1);
+			last = now;
+			step(dt);
+			draw();
+		}
+
+		function start() {
+			if (raf || reduced.matches) return;
+			last = 0;
+			raf = requestAnimationFrame(frame);
+		}
+		function stop() {
+			if (!raf) return;
+			cancelAnimationFrame(raf);
+			raf = 0;
+		}
+
+		readColors();
+		resize();
+		draw();
+		canvas.dataset.ready = 'true';
+		start();
+
+		window.addEventListener('resize', () => {
+			clearTimeout(resizeTimer);
+			resizeTimer = window.setTimeout(() => {
+				resize();
+				if (reduced.matches) draw();
+			}, 150);
+		});
+
+		document.addEventListener('visibilitychange', () => {
+			if (document.hidden) stop();
+			else start();
+		});
+
+		// pointer links, mouse only — no point chasing a finger that has left
+		if (window.matchMedia('(pointer: fine)').matches) {
+			window.addEventListener(
+				'pointermove',
+				(e) => {
+					pointer.x = e.clientX;
+					pointer.y = e.clientY;
+					pointer.active = true;
+				},
+				{ passive: true }
+			);
+			window.addEventListener('pointerleave', () => {
+				pointer.active = false;
+			});
+		}
+
+		// repaint in the new palette when the theme dropdown changes
+		new MutationObserver(() => {
+			readColors();
+			if (reduced.matches) draw();
+		}).observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ['data-theme-variant', 'data-theme'],
+		});
+
+		reduced.addEventListener('change', () => {
+			if (reduced.matches) {
+				stop();
+				draw();
+			} else {
+				start();
+			}
+		});
+	}
+</script>
