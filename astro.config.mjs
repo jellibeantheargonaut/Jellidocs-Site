@@ -26,6 +26,7 @@ export default defineConfig({
 			sidebar: [
 				{ label: 'HackTheBox', items: [{ autogenerate: { directory: 'HackTheBox' } }] },
 				{ label: 'Prolabs', items: [{ autogenerate: { directory: 'Prolabs' } }] },
+				{ label: 'Certifications', items: [{ autogenerate: { directory: 'Certifications' } }] },
 			],
 		}),
 	],
