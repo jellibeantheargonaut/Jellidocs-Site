@@ -80,7 +80,7 @@ The single biggest time sink was believing an enumeration pass had finished when
 it had not. Collection over one protocol, from one host, as one identity gives
 you a *view*, not the truth. The habit worth building before the exam is
 re-collecting after every identity change and diffing against what you had
-before — the new edges are the whole game.
+before — the new edges are the whole game. Also bloodhound graphs doesn't always give the full picture, so prepare to learn to use `dacledit` to identify DACL's.
 
 ### Routing is a first-class problem
 
@@ -301,6 +301,12 @@ tickets worked immediately from a Linux host. If a WinRM session refuses a
 ticket that everything else accepts, try another client machine before assuming
 the ticket is wrong.
 :::
+
+### Tools and Repos to have
+
+Following are the useful list of tools to have
+
+
 
 ## Takeaways
 
