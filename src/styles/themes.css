@@ -274,3 +274,374 @@
 	color: #04160b;
 	border-radius: 6px;
 }
+
+/* ---------------------------------------------------------------------------
+   3. PAPER (light) — white cards on a soft grey canvas. Unlike the two glass
+      themes this one is NOT flagged `data-glass`: instead of frosted panels it
+      uses solid white surfaces lifted off the page with rounded corners and a
+      drop shadow, so the sidebar, the article and the table of contents each
+      read as their own sheet of paper.
+   --------------------------------------------------------------------------- */
+:root[data-theme-variant='paper'] {
+	/* The canvas is a touch darker than the cards; pure white on pure white
+	   would hide the elevation the whole theme is built on. */
+	--sl-color-bg: #eceef2;
+	--sl-color-bg-nav: #ffffff;
+	--sl-color-bg-sidebar: #ffffff;
+	--sl-color-bg-inline-code: #eef0f4;
+
+	--sl-color-text: #3a4048;
+	--sl-color-white: #0b0d10;
+	--sl-color-black: #ffffff;
+	--sl-color-gray-1: #1a1d22;
+	--sl-color-gray-2: #33383f;
+	--sl-color-gray-3: #5b626b;
+	--sl-color-gray-4: #8a919b;
+	--sl-color-gray-5: #c7ccd3;
+	--sl-color-gray-6: #eceef2;
+	--sl-color-gray-7: #f6f7f9;
+
+	/* Accents are simply black — the theme's only "colour" is contrast. */
+	--sl-color-accent-low: #e3e5ea;
+	--sl-color-accent: #14171c;
+	--sl-color-accent-high: #000000;
+	--sl-color-text-accent: #14171c;
+	--sl-color-hairline: rgba(15, 23, 42, 0.07);
+	--sl-color-hairline-light: rgba(15, 23, 42, 0.05);
+	--sl-color-hairline-shade: rgba(15, 23, 42, 0.06);
+
+	/* Card knobs — every raised surface reads from these. */
+	--paper-card: #ffffff;
+	/* The three big sheets are slightly see-through so the mesh shows faintly
+	   behind them; a small blur keeps the lines from competing with the text.
+	   Everything smaller (asides, tables, code frames) stays solid white. */
+	--paper-pane: rgba(255, 255, 255, 0.78);
+	--paper-pane-blur: blur(3px);
+	--paper-radius: 16px;
+	--paper-border: rgba(15, 23, 42, 0.07);
+	--paper-shadow:
+		0 10px 30px rgba(15, 23, 42, 0.08),
+		0 2px 6px rgba(15, 23, 42, 0.05);
+	--paper-gap: 0.75rem;
+	--paper-ink: #0b0d10;
+
+	/* Mesh backdrop — dark web on the light canvas. */
+	--mesh-node: rgba(13, 16, 22, 0.78);
+	--mesh-line: rgba(13, 16, 22, 0.32);
+	--mesh-opacity: 0.55;
+}
+
+:root[data-theme-variant='paper'] body {
+	background: linear-gradient(180deg, #f2f4f7 0%, #eceef2 55%, #e8eaef 100%);
+	background-attachment: fixed;
+}
+
+/* --- the three sheets ------------------------------------------------------ */
+
+/* top bar: flat white with a hairline lift */
+:root[data-theme-variant='paper'] header.header {
+	background: var(--paper-card);
+	border-bottom: 1px solid var(--paper-border);
+	box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+/* the mobile drawer stays solid — it has to cover the page behind it */
+:root[data-theme-variant='paper'] .sidebar-pane {
+	background: var(--paper-card);
+}
+
+/* left menu — only once it is a persistent column; the mobile drawer stays
+   full-width so it still covers the page when opened. */
+@media (min-width: 30rem) {
+	:root[data-theme-variant='paper'] .sidebar-pane {
+		background: var(--paper-pane);
+		backdrop-filter: var(--paper-pane-blur);
+		-webkit-backdrop-filter: var(--paper-pane-blur);
+		margin: var(--paper-gap);
+		width: calc(var(--sl-sidebar-width) - 2 * var(--paper-gap));
+		border: 1px solid var(--paper-border);
+		border-radius: var(--paper-radius);
+		box-shadow: var(--paper-shadow);
+		scrollbar-gutter: auto;
+	}
+}
+/* article */
+:root[data-theme-variant='paper'] .main-pane {
+	flex: 1 1 auto;
+	width: auto;
+	background: var(--paper-pane);
+	backdrop-filter: var(--paper-pane-blur);
+	-webkit-backdrop-filter: var(--paper-pane-blur);
+	margin: var(--paper-gap);
+	border: 1px solid var(--paper-border);
+	border-radius: var(--paper-radius);
+	box-shadow: var(--paper-shadow);
+	overflow: clip; /* keeps content off the rounded corners */
+}
+
+/* the panel dividers inside the article would cut the card in half */
+:root[data-theme-variant='paper'] .content-panel + .content-panel {
+	border-top: 0;
+}
+
+/* table of contents */
+/* Starlight pins the TOC column with `position: fixed; width: 100%`, which
+   resolves against the viewport — fine for bare links, but a painted card
+   would then run off the right edge. Sticky positioning keeps the same
+   behaviour while sizing the column from its (relative) container. */
+:root[data-theme-variant='paper'] .right-sidebar {
+	border-inline-start: 0;
+	position: sticky;
+	top: var(--sl-nav-height);
+	width: 100%;
+	height: calc(100vh - var(--sl-nav-height));
+	padding-top: 0;
+}
+:root[data-theme-variant='paper'] .right-sidebar-panel {
+	background: var(--paper-pane);
+	backdrop-filter: var(--paper-pane-blur);
+	-webkit-backdrop-filter: var(--paper-pane-blur);
+	margin: var(--paper-gap);
+	box-sizing: border-box;
+	padding: 1rem 1.1rem;
+	border: 1px solid var(--paper-border);
+	border-radius: var(--paper-radius);
+	box-shadow: var(--paper-shadow);
+}
+/* Starlight pins the TOC list to the sidebar width; inside a card with its own
+   margin and padding that overflows the right edge, so let it fill the card. */
+:root[data-theme-variant='paper'] .right-sidebar-panel .sl-container {
+	width: 100%;
+	max-width: none;
+}
+
+/* --- left menu interaction: the item goes black on hover ------------------- */
+:root[data-theme-variant='paper'] .sidebar-content a {
+	display: block;
+	border-radius: 10px;
+	padding-block: 0.3rem;
+	padding-inline: 0.55rem;
+	color: #454c55;
+	transition:
+		background-color 0.15s ease,
+		color 0.15s ease;
+}
+:root[data-theme-variant='paper'] .sidebar-content a:hover,
+:root[data-theme-variant='paper'] .sidebar-content a:focus-visible {
+	background: var(--paper-ink);
+	color: #ffffff;
+}
+:root[data-theme-variant='paper'] .sidebar-content a[aria-current='page'] {
+	background: var(--paper-ink);
+	color: #ffffff;
+	font-weight: 600;
+}
+/* group headings stay quiet */
+:root[data-theme-variant='paper'] .sidebar-content summary,
+:root[data-theme-variant='paper'] .sidebar-content .group-label span {
+	color: #7b828c;
+	letter-spacing: 0.02em;
+}
+
+/* --- table of contents: soft grey, darkens and thickens on hover ----------- */
+:root[data-theme-variant='paper'] .right-sidebar-panel a {
+	color: #767d87;
+	border-radius: 8px;
+	padding-block: 0.15rem;
+	transition:
+		color 0.15s ease,
+		font-weight 0.15s ease;
+}
+:root[data-theme-variant='paper'] .right-sidebar-panel a:hover,
+:root[data-theme-variant='paper'] .right-sidebar-panel a:focus-visible,
+:root[data-theme-variant='paper'] .right-sidebar-panel a[aria-current='true'] {
+	color: var(--paper-ink);
+	font-weight: 650;
+}
+
+/* --- smaller surfaces, kept consistent with the cards ---------------------- */
+:root[data-theme-variant='paper'] .expressive-code .frame {
+	border: 1px solid var(--paper-border);
+	border-radius: 12px;
+	box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+	overflow: hidden;
+}
+:root[data-theme-variant='paper'] .sl-markdown-content code:not(:where(.not-content *)) {
+	background: #dcfce7;
+	color: #0b0d10;
+	font-weight: 650;
+	border: 1px solid rgba(21, 128, 61, 0.28);
+	border-radius: 6px;
+	padding: 0.05em 0.36em;
+}
+:root[data-theme-variant='paper'] .starlight-aside,
+:root[data-theme-variant='paper'] .sl-markdown-content .card,
+:root[data-theme-variant='paper'] .sl-link-card,
+:root[data-theme-variant='paper'] button[data-open-modal] {
+	background: var(--paper-card);
+	border: 1px solid var(--paper-border);
+	border-radius: 12px;
+	box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+}
+:root[data-theme-variant='paper'] .sl-markdown-content table {
+	width: fit-content;
+	max-width: 100%;
+	background: var(--paper-card);
+	border: 1px solid var(--paper-border);
+	border-radius: 12px;
+	overflow: auto;
+}
+:root[data-theme-variant='paper'] .sl-markdown-content :is(th, td) {
+	padding: 0.55rem 1rem;
+	border-bottom: 1px solid var(--paper-border);
+}
+:root[data-theme-variant='paper'] .sl-markdown-content th {
+	background: #f5f6f9;
+	color: var(--paper-ink);
+}
+:root[data-theme-variant='paper'] .sl-markdown-content tr:last-child td {
+	border-bottom: 0;
+}
+:root[data-theme-variant='paper'] .pagination-links a {
+	background: var(--paper-card);
+	border: 1px solid var(--paper-border);
+	border-radius: 12px;
+	box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+}
+
+/* The Pro Lab attack-path chains are inline-styled for a dark page (white text
+   on translucent white panels), which all but disappears on Paper. Inline
+   styles can only be beaten with !important, and this is scoped to the theme
+   and to those blocks' own colour values so it touches nothing else. */
+:root[data-theme-variant='paper'] .sl-markdown-content [style*='rgba(255,255,255'] {
+	background: #f6f7f9 !important;
+	border-color: rgba(15, 23, 42, 0.1) !important;
+}
+:root[data-theme-variant='paper'] .sl-markdown-content [style*='color:#fff'],
+:root[data-theme-variant='paper'] .sl-markdown-content [style*='color: #fff'] {
+	color: var(--paper-ink) !important;
+}
+:root[data-theme-variant='paper'] .sl-markdown-content [style*='#cbd5e1'],
+:root[data-theme-variant='paper'] .sl-markdown-content [style*='#94a3b8'],
+:root[data-theme-variant='paper'] .sl-markdown-content [style*='#A4B1CD'] {
+	color: #3a4048 !important;
+}
+:root[data-theme-variant='paper'] .sl-markdown-content [style*='#64748b'] {
+	color: #6b7280 !important;
+}
+
+/* --- all three sheets anchored to the viewport ----------------------------
+   The left menu is fixed by Starlight; on wide screens the article and the
+   table of contents are given the same treatment, so the three cards share a
+   top edge and a bottom edge and each scrolls inside itself instead of the
+   whole page scrolling underneath them. Below 72rem the layout collapses to a
+   single column and normal page scrolling returns. */
+@media (min-width: 72rem) {
+	:root[data-theme-variant='paper'] .main-pane {
+		height: calc(100vh - var(--sl-nav-height) - 2 * var(--paper-gap));
+		overflow-y: auto;
+		overscroll-behavior: contain;
+	}
+	:root[data-theme-variant='paper'] .right-sidebar {
+		height: calc(100vh - var(--sl-nav-height));
+	}
+	:root[data-theme-variant='paper'] .right-sidebar-panel {
+		height: calc(100% - 2 * var(--paper-gap));
+		overflow-y: auto;
+		overscroll-behavior: contain;
+	}
+}
+
+/* --- brighter syntax highlighting (Paper only) -----------------------------
+   Expressive Code writes both palettes onto every token as inline custom
+   properties — `--0` for the dark theme, `--1` for the light one — and picks
+   between them with `data-theme`. Swapping the whole light theme in
+   astro.config drops the second palette (tokens fall back to plain text), so
+   instead each light-palette value is remapped here, in place. Every colour
+   below clears 4.5:1 against the code background, so "brighter" does not mean
+   harder to read.  Dark themes are untouched: they use `--0`. */
+:root[data-theme-variant='paper'] .expressive-code span[style*='--1:#403F53' i] {
+	color: #2a2e39 !important; /* plain code */
+}
+:root[data-theme-variant='paper'] .expressive-code span[style*='--1:#3B61B0' i] {
+	color: #0d6efd !important; /* commands, identifiers */
+}
+:root[data-theme-variant='paper'] .expressive-code span[style*='--1:#111111' i] {
+	color: #4a5160 !important; /* quotes, punctuation */
+}
+:root[data-theme-variant='paper'] .expressive-code span[style*='--1:#8844AE' i] {
+	color: #a020f0 !important; /* keywords, operators */
+}
+:root[data-theme-variant='paper'] .expressive-code span[style*='--1:#984E4D' i] {
+	color: #e11d48 !important; /* strings */
+}
+:root[data-theme-variant='paper'] .expressive-code span[style*='--1:#AA0982' i] {
+	color: #d6009f !important; /* numbers, variables */
+}
+:root[data-theme-variant='paper'] .expressive-code span[style*='--1:#096E72' i] {
+	color: #0891b2 !important; /* built-ins, pipes */
+}
+:root[data-theme-variant='paper'] .expressive-code span[style*='--1:#5F636F' i],
+:root[data-theme-variant='paper'] .expressive-code span[style*='--1:#5D6376' i] {
+	color: #6b7280 !important; /* comments */
+	font-style: italic;
+}
+
+/* --- Pro Lab attack-path chains -------------------------------------------
+   The step boxes are inline-styled for a dark page: translucent white panels,
+   6%-alpha accent tints and pale accent text, all of which vanish on Paper.
+   Each value is remapped to its light-theme equivalent — solid panels, real
+   tints, and accent rules dark enough to read as colour rather than haze. */
+:root[data-theme-variant='paper'] .sl-markdown-content [style*='rgba(255,255,255,.045)'],
+:root[data-theme-variant='paper'] .sl-markdown-content [style*='rgba(255,255,255,.03)'] {
+	background: #ffffff !important;
+	border-color: rgba(15, 23, 42, 0.12) !important;
+}
+:root[data-theme-variant='paper'] .sl-markdown-content [style*='rgba(96,165,250,.06)'] {
+	background: #eff6ff !important;
+	border-color: rgba(37, 99, 235, 0.22) !important;
+}
+:root[data-theme-variant='paper'] .sl-markdown-content [style*='#60a5fa' i] {
+	border-left-color: #2563eb !important;
+}
+:root[data-theme-variant='paper'] .sl-markdown-content [style*='rgba(251,191,36,.06)'] {
+	background: #fffbeb !important;
+	border-color: rgba(217, 119, 6, 0.28) !important;
+}
+:root[data-theme-variant='paper'] .sl-markdown-content [style*='#fbbf24' i] {
+	border-left-color: #d97706 !important;
+}
+:root[data-theme-variant='paper'] .sl-markdown-content [style*='rgba(248,113,113,.08)'] {
+	background: #fef2f2 !important;
+	border-color: rgba(220, 38, 38, 0.35) !important;
+}
+:root[data-theme-variant='paper'] .sl-markdown-content [style*='#f87171' i] {
+	border-left-color: #dc2626 !important;
+}
+:root[data-theme-variant='paper'] .sl-markdown-content [style*='#fca5a5' i] {
+	color: #b91c1c !important;
+}
+:root[data-theme-variant='paper'] .sl-markdown-content [style*='#94a3b8' i] {
+	border-left-color: #64748b !important;
+}
+:root[data-theme-variant='paper'] .sl-markdown-content [style*='rgba(148,163,184,.5)'] {
+	border-color: rgba(100, 116, 139, 0.55) !important;
+}
+
+/* The rule above that repaints inline-styled dark-page markup also caught the
+   Hack The Box achievement and badge cards, which carry their own navy
+   background — their white and slate text was being darkened into it. Those
+   cards are self-contained, so put their palette back. */
+:root[data-theme-variant='paper'] .sl-markdown-content a[href*='hackthebox'] [style*='color:#fff'],
+:root[data-theme-variant='paper'] .sl-markdown-content a[href*='hackthebox'] [style*='color: #fff'] {
+	color: #ffffff !important;
+}
+:root[data-theme-variant='paper'] .sl-markdown-content a[href*='hackthebox'] [style*='#A4B1CD' i] {
+	color: #a4b1cd !important;
+}
+:root[data-theme-variant='paper'] .sl-markdown-content a[href*='hackthebox'] [style*='#cbd5e1' i] {
+	color: #cbd5e1 !important;
+}
+:root[data-theme-variant='paper'] .sl-markdown-content a[href*='hackthebox'] [style*='#64748B' i] {
+	color: #64748b !important;
+}

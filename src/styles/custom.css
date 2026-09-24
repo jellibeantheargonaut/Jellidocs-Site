@@ -43,3 +43,14 @@
 .pagination-links a .link-title {
 	font-size: var(--sl-text-lg);
 }
+
+/* The whitespace between body's out-of-flow children (skip link, mesh canvas)
+   forms an empty anonymous line box that pushes `.page` down by one line-height
+   — 28px — so the layout never starts flush under the header. Collapse that box
+   and restore the line height on the page itself. */
+body {
+	line-height: 0;
+}
+body > .page {
+	line-height: var(--sl-line-height);
+}
